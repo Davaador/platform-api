@@ -1,0 +1,13 @@
+# Local development only. Never use these values in production.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/platform
+    username: platform
+    password: platform_dev_password
+
+app:
+  jwt:
+    secret: local-only-secret-change-me-0123456789abcdef
+  admin:
+    email: admin@example.com
+    password: ChangeMe-LocalOnly-123
