@@ -22,12 +22,12 @@ public class JwtConfig {
     }
 
     @Bean
-    JwtEncoder jwtEncoder(JwtProperties properties) {
+    public JwtEncoder jwtEncoder(JwtProperties properties) {
         return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey(properties)));
     }
 
     @Bean
-    JwtDecoder jwtDecoder(JwtProperties properties) {
+    public JwtDecoder jwtDecoder(JwtProperties properties) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder
                 .withSecretKey(secretKey(properties))
                 .macAlgorithm(MacAlgorithm.HS256)
