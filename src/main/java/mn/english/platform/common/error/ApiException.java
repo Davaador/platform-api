@@ -1,5 +1,6 @@
 package mn.english.platform.common.error;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -17,5 +18,10 @@ public abstract class ApiException extends RuntimeException {
 
     public HttpStatus getStatus() {
         return status;
+    }
+
+    /** Extra HTTP headers for the response. Most errors have none. */
+    public HttpHeaders headers() {
+        return new HttpHeaders();
     }
 }

@@ -1,5 +1,6 @@
 package mn.english.platform.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import mn.english.platform.auth.dto.LoginRequest;
 import mn.english.platform.auth.dto.RefreshRequest;
@@ -30,8 +31,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public TokenResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+    public TokenResponse login(
+            @Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+        return authService.login(request, http.getRemoteAddr());
     }
 
     @PostMapping("/refresh")

@@ -22,9 +22,16 @@ app:
     password: ${ADMIN_PASSWORD:}
   refresh-token:
     ttl: 30d
+  login-limit:
+    max-failures-per-email: 5
+    max-failures-per-ip: 20
+    window: 15m
 
 management:
   endpoints:
     web:
       exposure:
         include: health
+        
+server:
+  forward-headers-strategy: native

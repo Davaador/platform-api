@@ -1,5 +1,6 @@
 package mn.english.platform.auth;
 
+import java.util.Optional;
 import mn.english.platform.auth.dto.LoginRequest;
 import mn.english.platform.auth.dto.RefreshRequest;
 import mn.english.platform.auth.dto.RegisterRequest;
@@ -17,16 +18,19 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokens;
     private final RefreshTokenService refreshTokens;
+    private final LoginAttemptService loginAttempts;
 
     public AuthService(
             UserService users,
             PasswordEncoder passwordEncoder,
             TokenService tokens,
-            RefreshTokenService refreshTokens) {
+            RefreshTokenService refreshTokens,
+            LoginAttemptService loginAttempts) {
         this.users = users;
         this.passwordEncoder = passwordEncoder;
         this.tokens = tokens;
         this.refreshTokens = refreshTokens;
+        this.loginAttempts = loginAttempts;
     }
 
     public User register(RegisterRequest request) {
@@ -34,11 +38,21 @@ public class AuthService {
         return users.create(request.email(), hash, request.displayName(), Role.USER);
     }
 
-    public TokenResponse login(LoginRequest request) {
-        User user = users.findByEmail(request.email())
-                .filter(u -> passwordEncoder.matches(request.password(), u.getPasswordHash()))
-                .orElseThrow(InvalidCredentialsException::new);
-        return response(tokens.issue(user), refreshTokens.issue(user.getId()));
+    public TokenResponse login(LoginRequest request, String clientIp) {
+        // Check first, so a blocked client cannot even test a password.
+        loginAttempts.check(request.email(), clientIp);
+
+        Optional<User> user = users.findByEmail(request.email())
+                .filter(u -> passwordEncoder.matches(request.password(), u.getPasswordHash()));
+        if (user.isEmpty()) {
+            // We count unknown emails too, so attackers learn nothing about which emails exist.
+            loginAttempts.recordFailure(request.email(), clientIp);
+            throw new InvalidCredentialsException();
+        }
+
+        loginAttempts.recordSuccess(request.email());
+        User found = user.get();
+        return response(tokens.issue(found), refreshTokens.issue(found.getId()));
     }
 
     public TokenResponse refresh(RefreshRequest request) {
