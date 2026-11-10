@@ -56,3 +56,5 @@ The API runs on http://localhost:8080
 - Passwords are hashed. The hash is never returned by the API.
 - A new account is always a USER. The first ADMIN comes from environment variables.
 - Secrets are never stored in the code.
+
+![Java CI](https://github.com/Davaador/platform-api/actions/workflows/ci.yml/badge.svg)

@@ -9,20 +9,19 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-import mn.english.platform.auth.dto.TokenResponse;
 import mn.english.platform.config.JwtConfig;
 import mn.english.platform.config.JwtProperties;
 import mn.english.platform.user.Role;
 import mn.english.platform.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class TokenServiceTest {
@@ -53,14 +52,13 @@ class TokenServiceTest {
     void issuedTokenContainsSubjectIssuerAndRole() {
         UUID id = UUID.randomUUID();
 
-        TokenResponse response = tokenService.issue(userWithId(id, Role.ADMIN));
-        Jwt jwt = decoder.decode(response.accessToken());
+        AccessToken token = tokenService.issue(userWithId(id, Role.ADMIN));
+        Jwt jwt = decoder.decode(token.value());
 
         assertEquals(id.toString(), jwt.getSubject());
         assertEquals(ISSUER, jwt.getClaimAsString("iss"));
         assertEquals(List.of("ADMIN"), jwt.getClaimAsStringList("roles"));
-        assertEquals("Bearer", response.tokenType());
-        assertEquals(900, response.expiresInSeconds());
+        assertEquals(900, token.expiresInSeconds());
     }
 
     @Test
@@ -99,14 +97,14 @@ class TokenServiceTest {
         TokenService otherService =
                 new TokenService(config.jwtEncoder(otherProperties), otherProperties);
 
-        String token = otherService.issue(userWithId(UUID.randomUUID(), Role.ADMIN)).accessToken();
+        String token = otherService.issue(userWithId(UUID.randomUUID(), Role.ADMIN)).value();
 
         assertThrows(JwtException.class, () -> decoder.decode(token));
     }
 
     @Test
     void tokenWithChangedPayloadIsRejected() {
-        String token = tokenService.issue(userWithId(UUID.randomUUID(), Role.USER)).accessToken();
+        String token = tokenService.issue(userWithId(UUID.randomUUID(), Role.USER)).value();
         String[] parts = token.split("\\.");
         String fakePayload = Base64.getUrlEncoder().withoutPadding().encodeToString(
                 "{\"sub\":\"hacker\",\"roles\":[\"ADMIN\"]}".getBytes(StandardCharsets.UTF_8));

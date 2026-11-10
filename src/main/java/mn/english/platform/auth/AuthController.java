@@ -2,6 +2,7 @@ package mn.english.platform.auth;
 
 import jakarta.validation.Valid;
 import mn.english.platform.auth.dto.LoginRequest;
+import mn.english.platform.auth.dto.RefreshRequest;
 import mn.english.platform.auth.dto.RegisterRequest;
 import mn.english.platform.auth.dto.TokenResponse;
 import mn.english.platform.user.UserResponse;
@@ -31,5 +32,16 @@ public class AuthController {
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/refresh")
+    public TokenResponse refresh(@Valid @RequestBody RefreshRequest request) {
+        return authService.refresh(request);
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@Valid @RequestBody RefreshRequest request) {
+        authService.logout(request);
     }
 }

@@ -2,7 +2,6 @@ package mn.english.platform.auth;
 
 import java.time.Instant;
 import java.util.List;
-import mn.english.platform.auth.dto.TokenResponse;
 import mn.english.platform.config.JwtProperties;
 import mn.english.platform.user.User;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -12,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+/** Creates short-lived access tokens (JWT). */
 @Service
 public class TokenService {
 
@@ -23,7 +23,7 @@ public class TokenService {
         this.properties = properties;
     }
 
-    public TokenResponse issue(User user) {
+    public AccessToken issue(User user) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(properties.issuer())
@@ -34,6 +34,6 @@ public class TokenService {
                 .build();
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         String token = encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
-        return new TokenResponse(token, "Bearer", properties.accessTokenTtl().toSeconds());
+        return new AccessToken(token, properties.accessTokenTtl().toSeconds());
     }
 }
