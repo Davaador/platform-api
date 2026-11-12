@@ -11,3 +11,5 @@ app:
   admin:
     email: admin@example.com
     password: ChangeMe-LocalOnly-123
+  cors:
+    allowed-origins: http://localhost:3000

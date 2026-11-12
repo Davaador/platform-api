@@ -26,12 +26,14 @@ app:
     max-failures-per-email: 5
     max-failures-per-ip: 20
     window: 15m
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
 
 management:
   endpoints:
     web:
       exposure:
         include: health
-        
+
 server:
   forward-headers-strategy: native

@@ -1,0 +1,10 @@
+CREATE TABLE words (
+    id UUID PRIMARY KEY,
+    en VARCHAR(100) NOT NULL UNIQUE,
+    mn VARCHAR(200) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    example VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
